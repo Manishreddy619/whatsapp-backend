@@ -6,7 +6,7 @@ import authenticationrouter from './models/index.js';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 const app = express();
-const httpServer = createServer(app);
+const httpServer = createServer();
 
 const port = process.env.PORT || 3001;
 
@@ -19,21 +19,11 @@ app.use(express.json());
 app.use('/whatsapp', authenticationrouter);
 // ************************** ERROR HANDLERS ***************************
 const io = new Server(httpServer);
-
-io.on('connection', (socket) => {
-	console.log(socket);
-	console.log('socket is active to be connected');
-	socket.on('chat', (payload) => {
-		console.log('what is payload');
-		io.emit('chat', payload);
-	});
-});
-
 mongoose.connect(process.env.MONGO_CONNECTION);
 
 mongoose.connection.on('connected', () => {
 	console.log('Successfully connected to Mongo!');
-	httpServer.listen(port, () => {
+	app.listen(port, () => {
 		console.table(listEndpoints(app));
 		console.log(`app running on port ${port}`);
 	});
