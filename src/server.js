@@ -3,37 +3,39 @@ import mongoose from 'mongoose';
 import listEndpoints from 'express-list-endpoints';
 import cors from 'cors';
 import authenticationrouter from './models/index.js';
-// import {
-// 	unauthorizedHandler,
-// 	notFoundHandler,
-// 	badRequestHandler,
-// 	genericErrorHandler,
-// } from './services/errorHandlers.js';
-
-const server = express();
+import { createServer } from 'http';
+import { Server } from 'socket.io';
+const app = express();
+const httpServer = createServer(app);
 
 const port = process.env.PORT || 3001;
 
 // ************************* MIDDLEWARES ********************************
 
-server.use(cors());
-server.use(express.json());
+app.use(cors());
+app.use(express.json());
 
 // ************************* ROUTES ************************************
-server.use('/whatsapp/auth', authenticationrouter);
+app.use('/whatsapp', authenticationrouter);
 // ************************** ERROR HANDLERS ***************************
-// server.use(unauthorizedHandler);
-// server.use(notFoundHandler);
-// server.use(badRequestHandler);
-// server.use(genericErrorHandler);
+const io = new Server(httpServer);
+
+io.on('connection', (socket) => {
+	console.log(socket);
+	console.log('socket is active to be connected');
+	socket.on('chat', (payload) => {
+		console.log('what is payload');
+		io.emit('chat', payload);
+	});
+});
 
 mongoose.connect(process.env.MONGO_CONNECTION);
 
 mongoose.connection.on('connected', () => {
 	console.log('Successfully connected to Mongo!');
-	server.listen(port, () => {
-		console.table(listEndpoints(server));
-		console.log(`Server running on port ${port}`);
+	httpServer.listen(port, () => {
+		console.table(listEndpoints(app));
+		console.log(`app running on port ${port}`);
 	});
 });
 
