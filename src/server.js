@@ -3,6 +3,8 @@ import mongoose from 'mongoose'
 import listEndpoints from 'express-list-endpoints'
 import cors from 'cors'
 import authenticationrouter from './models/index.js'
+import messageRouter from './controllers/message.js'
+import conversationRouter from './controllers/conversation.js'
 import { createServer } from 'http'
 import { Server } from 'socket.io'
 const app = express()
@@ -17,6 +19,8 @@ app.use(express.json())
 
 // ************************* ROUTES ************************************
 app.use('/whatsapp', authenticationrouter)
+app.use('/whatsapp/messages', messageRouter)
+app.use('/whatsapp/conversations', conversationRouter)
 // ************************** ERROR HANDLERS ***************************
 const io = new Server(httpServer)
 mongoose.connect(process.env.MONGO_CONNECTION)
