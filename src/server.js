@@ -1,37 +1,34 @@
-import express from "express";
-import mongoose from "mongoose";
-import listEndpoints from "express-list-endpoints";
-import cors from "cors";
-import authenticationrouter from "./models/index.js";
-import { createServer } from "http";
-import createSocketServer from "./socket.js";
+import express from 'express'
+import mongoose from 'mongoose'
+import listEndpoints from 'express-list-endpoints'
+import cors from 'cors'
+import authenticationrouter from './models/index.js'
+import { createServer } from 'http'
+import { Server } from 'socket.io'
+const app = express()
+const httpServer = createServer()
 
-const app = express();
-const httpServer = createServer(app);
-createSocketServer(httpServer);
-
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 3001
 
 // ************************* MIDDLEWARES ********************************
 
-app.use(cors());
-app.use(express.json());
+app.use(cors())
+app.use(express.json())
 
 // ************************* ROUTES ************************************
-app.use("/whatsapp", authenticationrouter);
+app.use('/whatsapp', authenticationrouter)
 // ************************** ERROR HANDLERS ***************************
-// const io = new Server(httpServer)
+const io = new Server(httpServer)
+mongoose.connect(process.env.MONGO_CONNECTION)
 
-console.table(listEndpoints(app));
-mongoose.connect(process.env.MONGO_CONNECTION);
+mongoose.connection.on('connected', () => {
+  console.log('Successfully connected to Mongo!')
+  app.listen(port, () => {
+    console.table(listEndpoints(app))
+    console.log(`app running on port ${port}`)
+  })
+})
 
-mongoose.connection.on("connected", () => {
-  console.log("Successfully connected to Mongo!");
-  httpServer.listen(port, () => {
-    console.log(`app running on port ${port}`);
-  });
-});
-
-mongoose.connection.on("error", (err) => {
-  console.log(err);
-});
+mongoose.connection.on('error', (err) => {
+  console.log(err)
+})
