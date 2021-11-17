@@ -36,6 +36,7 @@ const createSocketServer = (server) => {
         io.emit("createdRoom", newRoom);
       } catch (error) {
         console.log(error);
+        console.log(error);
       }
     });
 
