@@ -33,10 +33,11 @@ messageRouter.get("/", async(req, res) => {
 // get message by id from database
 
 messageRouter.get("/:conversationId", async(req, res) => {
-    const id = req.params.conversationId;
+    
     try {
-        const message = await MessageModel.findById(id);
-        res.send(message);
+        const messages = await MessageModel.find({
+            conversationId: req.params.conversationId});
+        res.send(messages);
     } catch (error) {
         res.status(500).send({ message: error.message });
     }
